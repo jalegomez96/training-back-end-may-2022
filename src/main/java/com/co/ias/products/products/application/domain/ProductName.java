@@ -8,7 +8,7 @@ public class ProductName {
 
     public ProductName(String value) {
         Validate.notNull(value, "Product name can not be null");
-        Validate.isTrue(value.length() < 40, "Product name can not be longer than 40 characters");
+        Validate.isTrue(value.length() <= 40, "Product name can not be longer than 40 characters");
         this.value = value;
     }
 
