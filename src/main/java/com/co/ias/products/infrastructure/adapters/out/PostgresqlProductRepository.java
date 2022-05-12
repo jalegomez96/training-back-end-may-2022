@@ -28,8 +28,8 @@ public class PostgresqlProductRepository implements ProductRepository {
     public void store(Product product) {
         String sql = "INSERT INTO products (id, name, type_of_product, price) VALUES (?, ?, ?, ?)";
 
-        try(Connection connection = dataSource.getConnection();
-            PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+        try (Connection connection = dataSource.getConnection();
+                PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
 
             preparedStatement.setLong(1, product.getProductId().getValue());
             preparedStatement.setString(2, product.getProductName().toString());
@@ -45,9 +45,9 @@ public class PostgresqlProductRepository implements ProductRepository {
 
     @Override
     public Optional<Product> get(ProductId productId) {
-        String sql = "Select * From products Where id = ?";
-        try(Connection connection = dataSource.getConnection();
-            PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+        String sql = "SELECT * FROM products WHERE id = ?";
+        try (Connection connection = dataSource.getConnection();
+                PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
             preparedStatement.setLong(1, productId.getValue());
             ResultSet resultSet = preparedStatement.executeQuery();
 
@@ -59,7 +59,7 @@ public class PostgresqlProductRepository implements ProductRepository {
                 return Optional.empty();
             }
 
-        }catch (SQLException exception) {
+        } catch (SQLException exception) {
             throw new RuntimeException("Error querying database", exception);
         }
 
@@ -67,12 +67,33 @@ public class PostgresqlProductRepository implements ProductRepository {
 
     @Override
     public void update(Product product) {
+        String sql = "UPDATE products SET name = ?, type_of_product = ?, price = ? WHERE id = ?";
 
+        try (Connection connection = dataSource.getConnection();
+                PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+
+            preparedStatement.setString(1, product.getProductName().toString());
+            preparedStatement.setInt(2, product.getTypeOfProduct().getValue());
+            preparedStatement.setLong(3, product.getProductPrice().getValue());
+            preparedStatement.setLong(4, product.getProductId().getValue());
+
+            preparedStatement.execute();
+
+        } catch (SQLException exception) {
+            throw new RuntimeException("Error querying database", exception);
+        }
     }
 
     @Override
     public void delete(ProductId productId) {
-
+        String sql = "DELETE FROM products WHERE id = ?";
+        try (Connection connection = dataSource.getConnection();
+                PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            preparedStatement.setLong(1, productId.getValue());
+            preparedStatement.execute();
+        } catch (SQLException exception) {
+            throw new RuntimeException("Error querying database", exception);
+        }
     }
 
     @Override
